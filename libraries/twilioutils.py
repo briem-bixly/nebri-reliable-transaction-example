@@ -8,15 +8,23 @@ logging.basicConfig(filename='twilio.log', level=logging.DEBUG)
 
 def get_messages(sid, token):
     try:
+        # in order to keep from retrieving the same messages over and over, we keep track of the last time
+        # we queried twilio
         fetched = MessageFetch.filter()
         client = TwilioRestClient(sid, token)
         if fetched.length == 0:
             messages = client.messages.list()
         else:
+            # 'after' was found by digging through the api documentation in python-twilio. this has not been tested.
+            # https://twilio-python.readthedocs.org/en/latest/api/rest/resources.html#sms-messages
+            # this can be changed to date_sent with an inequality that will retrieve all messages sent/received after
+            # or before the date depending on inequality. 
             messages = client.messages.list(after=fetched.date_ran)
         message_count = 0
         for m in messages:
             message_count += 1
+            # twilio doesn't send a json representation back, so we need to make a second query to get storable
+            # data
             url = '%s.json' % m.uri
             logging.debug(url)
             data = requests.get(url, auth=(sid, token)).content
@@ -42,11 +50,13 @@ def get_messages(sid, token):
                 )
             message.save()
         if fetched.length == 0:
+            # this is the first time we've fetched messages... create and entry
             MessageFetch(
                 date_ran=datetime.now(),
                 num_messages_fetched=message_count
             )
         else:
+            # update the existing entry
             fetched.date_ran = datetime.now()
             fetched.num_messages_fetched = message_count
         fetched.save()
@@ -56,11 +66,13 @@ def get_messages(sid, token):
 
 
 def generate_outgoing_message(to, from_, body):
+    # to and from_ should be 10 digit phone number strings with a '+' preceding the number
     message = Message()
     message.sms_to = to
     message.sms_from = from_
     message.sms_body = body
     message.save()
+    # saving should trigger the handle_outgoing script to actually send the message
 
 
 def send_message(sid, token, message_pid):
