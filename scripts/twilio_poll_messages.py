@@ -2,7 +2,7 @@ from twilioutils import get_messages
 
 
 class twilio_poll_messages(NebriOS):
-    schedule = "0 0 * * *"
+    drip = "0 0 * * *"
 
     def check(self):
         return self.sid != None and self.token != None
