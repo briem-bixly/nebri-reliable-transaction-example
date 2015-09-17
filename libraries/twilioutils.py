@@ -29,6 +29,7 @@ def get_messages(sid, token):
             logging.debug(url)
             data = requests.get(url, auth=(sid, token)).content
             try:
+                # let's check to see if this message already exists
                 message = Message.get(twilio_id=m.sid)
                 # update message instance
                 message.sms_to = m.to
@@ -50,7 +51,7 @@ def get_messages(sid, token):
                 )
             message.save()
         if fetched.length == 0:
-            # this is the first time we've fetched messages... create and entry
+            # this is the first time we've fetched messages... create an entry
             MessageFetch(
                 date_ran=datetime.now(),
                 num_messages_fetched=message_count
