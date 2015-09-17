@@ -2,7 +2,7 @@ from twilioutils import send_message
 
 
 class twilio_retry_send(NebriOS):
-    schedule = "0 0 * * *"
+    drip = "0 0 * * *"
 
     def check(self):
         return self.sid != None and self.token != None
