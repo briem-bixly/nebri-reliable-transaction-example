@@ -84,4 +84,7 @@ def send_message(sid, token, message_pid):
         from_=message.sms_from,
         body=message.sms_body
     )
+    # once this is created on our twilio instance, return twilio's sid
+    # this will help with debouncing and will give our get_messages function an object to update instead of
+    # creating duplicates
     return new_message.sid
