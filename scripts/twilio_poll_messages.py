@@ -2,10 +2,14 @@ from twilioutils import get_messages
 
 
 class twilio_poll_messages(NebriOS):
-    drip = "0 0 * * *"
+    listens_to = ['twilio_poll_messages']
 
     def check(self):
-        return self.sid != None and self.token != None
+        return shared.twilio_sid != None and \
+               shared.twilio_token != None and \
+               self.twilio_poll_messages == True
 
     def action(self):
-        get_messages(self.sid, self.token)
+        # for debouncing purposes
+        self.twilio_poll_messages = 'Ran'
+        get_messages(shared.twilio_sid, shared.twilio_token)
