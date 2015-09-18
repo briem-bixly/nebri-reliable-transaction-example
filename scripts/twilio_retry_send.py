@@ -2,16 +2,21 @@ from twilioutils import send_message
 
 
 class twilio_retry_send(NebriOS):
-    drip = "0 0 * * *"
+    listens_to = ['twilio_retry_send']
 
     def check(self):
-        return self.sid != None and self.token != None
+        return shared.twilio_sid != None and /
+               shared.twilio_token != None and /
+               self.twilio_retry_send == True
 
     def action(self):
-        pending_messages = Message.filter(sent=False)
+        # for debouncing purposes
+        self.twilio_retry_send = 'Ran'
+        pending_messages = Message.filter(sent=False, sms_direction='')
         for message in pending_messages:
             try:
-                message_id = send_message(self.sid, self.token, message.pid)
+                # do stuff with message
+                message_id = send_message(shared.twilio_sid, shared.twilio_token, message.pid)
                 message.twilio_id = message_id
                 message.date_sent = datetime.now()
                 message.sent = True
