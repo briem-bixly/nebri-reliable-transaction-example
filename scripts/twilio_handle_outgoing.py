@@ -2,7 +2,7 @@ from twiliomodels import Message
 from twilioutils import send_message
 
 
-class twilio_handle_incoming(NebriOS):
+class twilio_handle_outgoing(NebriOS):
     listens_to = ['sms_to', 'sms_from', 'sms_body']
 
     def check(self):
