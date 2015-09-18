@@ -9,5 +9,10 @@ class twilio_handle_incoming(NebriOS):
 
     def action(self):
         # Do stuff with incoming message
+        if self.status == 'undelivered' or self.status == 'failed':
+            # check raw_data for more info
+            error_code = self.raw_data['error_code']
+            error_msg = self.raw_data['error_message']
+            # handle based on error
         self.date_handled = datetime.now()
         self.handled = True
